@@ -1,0 +1,34 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3.0"
+silent: true
+vars:
+  SOPS_AGE_KEY_FILE: "./config/age.txt"
+env:
+  SOPS_AGE_KEY_FILE: "./config/age.txt"
+  SOPS_PRIVATE_KEY:
+    sh: |
+      grep 'AGE-SECRET-KEY-' {{.SOPS_AGE_KEY_FILE}} | sed 's/AGE-SECRET-KEY-//g' | awk '{print $NF}' || echo ""
+  SOPS_PUBLIC_KEY:
+    sh: |
+      grep '# public key:' {{.SOPS_AGE_KEY_FILE}} | sed 's/# public key://g' | awk '{print $NF}'
+tasks:
+  default:
+    cmds:
+      - |
+        task -l
+
+  show:
+    cmds:
+      - |
+        echo "SOPS_PUBLIC_KEY: ${SOPS_PUBLIC_KEY}"
+        echo "SOPS_PRIVATE_KEY: ${SOPS_PRIVATE_KEY}"
+
+  encrypt:
+    desc: "Encrypt secrets file"
+    cmds:
+      - sops encrypt -i --age "${SOPS_PUBLIC_KEY}" .secrets.env.json
+
+  decrypt:
+    desc: "Decrypt secrets file"
+    cmds:
+      - sops decrypt -i .secrets.env.json

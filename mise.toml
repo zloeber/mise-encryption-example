@@ -1,0 +1,11 @@
+[tools]
+python = '3.12.8'
+age = 'latest'
+sops = 'latest'
+task = 'latest'
+
+[env]
+SOPS_AGE_KEY_FILE = 'config/age.txt'
+
+[env._]
+file = ".secrets.env.json"
